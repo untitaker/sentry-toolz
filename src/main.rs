@@ -1,4 +1,4 @@
-use std::io;
+use std::io::{self, Read};
 
 use structopt::StructOpt;
 use anyhow::Error;
@@ -14,12 +14,32 @@ enum Cli {
     }
 }
 
+struct WhitespaceRemovingReader<R: Read>(R);
+
+impl<R: Read> Read for WhitespaceRemovingReader<R> {
+    fn read(&mut self, buf: &mut [u8]) -> io::Result<usize> {
+        let num = self.0.read(buf)?;
+
+        let mut i = 0;
+        for j in 0..num {
+            if buf[j].is_ascii_whitespace() {
+                continue;
+            }
+
+            buf[i] = buf[j];
+            i += 1;
+        }
+
+        Ok(i)
+    }
+}
+
 fn main() -> Result<(), Error> {
     let opt = Cli::from_args();
 
     match opt {
         Cli::Decode => {
-            let mut read = io::stdin();
+            let mut read = WhitespaceRemovingReader(io::stdin());
             let data_pickled = base64::read::DecoderReader::new(
                 &mut read,
                 base64::STANDARD

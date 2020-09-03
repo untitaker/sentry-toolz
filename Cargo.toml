@@ -3,6 +3,8 @@ name = "sentry-toolz"
 version = "0.1.0"
 authors = ["Markus Unterwaditzer <markus-honeypot@unterwaditzer.net>"]
 edition = "2018"
+readme = "README.md"
+license-file = "../LICENSE"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 

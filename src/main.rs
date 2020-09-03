@@ -6,7 +6,14 @@ use structopt::StructOpt;
 #[derive(StructOpt)]
 #[structopt(name = "sentry-toolz")]
 enum Cli {
+    /// Decode a pickled-and-base64'd value from stdin and output it as JSON.
+    ///
+    /// This is how projectoptions are stored in Sentry.
     Decode,
+
+    /// Pickle-and-base64 a JSON value from stdin.
+    ///
+    /// This is how projectoptions are stored in Sentry.
     Encode {
         #[structopt(short, long)]
         proto3: bool,

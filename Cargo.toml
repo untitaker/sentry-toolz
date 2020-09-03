@@ -1,0 +1,15 @@
+[package]
+name = "sentry-toolz"
+version = "0.1.0"
+authors = ["Markus Unterwaditzer <markus-honeypot@unterwaditzer.net>"]
+edition = "2018"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+serde-pickle = "0.6.1"
+structopt = "0.3.17"
+serde = "1.0.115"
+anyhow = "1.0.32"
+base64 = "0.12.3"
+serde_json = "1.0.57"

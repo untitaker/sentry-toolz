@@ -1,8 +1,7 @@
 use std::io::{self, Read};
 
-use structopt::StructOpt;
 use anyhow::Error;
-
+use structopt::StructOpt;
 
 #[derive(StructOpt)]
 #[structopt(name = "sentry-toolz")]
@@ -10,8 +9,8 @@ enum Cli {
     Decode,
     Encode {
         #[structopt(short, long)]
-        proto3: bool
-    }
+        proto3: bool,
+    },
 }
 
 struct WhitespaceRemovingReader<R: Read>(R);
@@ -40,16 +39,13 @@ fn main() -> Result<(), Error> {
     match opt {
         Cli::Decode => {
             let mut read = WhitespaceRemovingReader(io::stdin());
-            let data_pickled = base64::read::DecoderReader::new(
-                &mut read,
-                base64::STANDARD
-            );
+            let data_pickled = base64::read::DecoderReader::new(&mut read, base64::STANDARD);
 
             let mut write = io::stdout();
 
             let data_value: serde_json::Value = serde_pickle::from_reader(data_pickled)?;
             serde_json::to_writer(&mut write, &data_value)?;
-        },
+        }
 
         Cli::Encode { proto3 } => {
             let mut read = io::stdin();

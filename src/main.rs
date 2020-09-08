@@ -1,4 +1,4 @@
-use std::io::{self, Read, Write};
+use std::io::{self, BufRead, Cursor, Read, Write};
 
 use anyhow::Error;
 use structopt::StructOpt;
@@ -50,33 +50,41 @@ fn main() -> Result<(), Error> {
 
     match opt {
         Cli::Decode => {
-            let mut read = GarbageRemovingReader(io::stdin());
-            let data_pickled = base64::read::DecoderReader::new(&mut read, base64::STANDARD);
-
-            // drive serializer manually such that we can catch errors about trailing data
-            let mut data_deserializer = serde_pickle::Deserializer::new(data_pickled, true);
-            let data_value: serde_json::Value =
-                serde::Deserialize::deserialize(&mut data_deserializer)?;
-            if data_deserializer.end().is_err() {
-                warn("Trailing data while unpickling");
-            }
-
+            let stdin = io::stdin();
             let mut write = io::stdout();
-            serde_json::to_writer(&mut write, &data_value)?;
-            write.write(&[b'\n'])?;
+
+            for line in stdin.lock().split(b'\n') {
+                let mut read = GarbageRemovingReader(Cursor::new(line?));
+                let data_pickled = base64::read::DecoderReader::new(&mut read, base64::STANDARD);
+
+                // drive serializer manually such that we can catch errors about trailing data
+                let mut data_deserializer = serde_pickle::Deserializer::new(data_pickled, true);
+                let data_value: serde_json::Value =
+                    serde::Deserialize::deserialize(&mut data_deserializer)?;
+                if data_deserializer.end().is_err() {
+                    warn("Trailing data while unpickling");
+                }
+
+                serde_json::to_writer(&mut write, &data_value)?;
+                write.write(&[b'\n'])?;
+            }
         }
 
         Cli::Encode { proto3 } => {
-            let mut read = io::stdin();
+            let stdin = io::stdin();
             let mut write = io::stdout();
-            {
-                let mut write_base64 =
-                    base64::write::EncoderWriter::new(&mut write, base64::STANDARD);
 
-                let data_value: serde_json::Value = serde_json::from_reader(&mut read)?;
-                serde_pickle::to_writer(&mut write_base64, &data_value, proto3)?;
+            for line in stdin.lock().split(b'\n') {
+                let data_value: serde_json::Value = serde_json::from_reader(Cursor::new(line?))?;
+
+                {
+                    let mut write_base64 =
+                        base64::write::EncoderWriter::new(&mut write, base64::STANDARD);
+                    serde_pickle::to_writer(&mut write_base64, &data_value, proto3)?;
+                }
+
+                write.write(&[b'\n'])?;
             }
-            write.write(&[b'\n'])?;
         }
     }
 

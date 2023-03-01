@@ -1,4 +1,4 @@
-#!/Users/untitaker/venvs/sentry-python/bin/python
+#!python3
 import sentry_sdk
 sentry_sdk.init(release="1.2.3")
 

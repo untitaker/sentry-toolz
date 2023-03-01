@@ -1,4 +1,5 @@
 #!/bin/sh
+# quick hack to reformat a really large rust file, such as the output of `cargo expand`
 fastmod ' ' $'\n' $1 --accept-all
 fastmod -m "'\n'" "' '" $1 --accept-all
 rustfmt $1

@@ -1,0 +1,32 @@
+#!/Users/untitaker/venvs/sentry-python/bin/python
+import sentry_sdk
+import time
+import sys
+import json
+sentry_sdk.init(auto_enabling_integrations=False, default_integrations=False)
+
+CHECKPOINT_SIZE = 10000
+
+i = 0
+
+checkpoint = time.time()
+
+for file in sys.argv[1:]:
+    with open(file) as f: 
+        event = json.load(f)
+        event.pop('event_id', None)
+        event.pop('project', None)
+        event.pop('timestamp', None)
+        event.pop('received', None)
+        event.pop('threads', None)
+        event.pop('debug_meta', None)
+        sentry_sdk.Hub.current.client.transport._send_event(event)
+
+
+    if i % CHECKPOINT_SIZE == 0:
+        next_checkpoint = time.time()
+        print("taking {}s per event".format((next_checkpoint - checkpoint) / CHECKPOINT_SIZE))
+
+        checkpoint = next_checkpoint
+
+    i += 1

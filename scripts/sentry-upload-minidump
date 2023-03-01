@@ -1,0 +1,16 @@
+#!/usr/bin/python3
+
+import sys
+import os
+import urllib.parse
+
+url = urllib.parse.urlparse(os.environ['SENTRY_DSN'])
+key = url.username
+assert key, "no dsn key"
+host = url.netloc
+assert host, "no dsn host"
+project_id = int(url.path.strip("/"))
+
+cmd = "curl -X POST {}://{}/api/{}/minidump?sentry_key={} -F upload_file_minidump=@{}".format(url.scheme, host, project_id, key, sys.argv[1])
+print(cmd)
+os.system(cmd)

@@ -1,0 +1,10 @@
+#!/Users/untitaker/venvs/sentry-python/bin/python
+import sentry_sdk
+sentry_sdk.init(release="1.2.3")
+
+hub = sentry_sdk.Hub.current
+hub.start_session()
+
+
+hub.end_session()
+hub.flush()

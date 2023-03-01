@@ -1,0 +1,27 @@
+#!/usr/bin/env python3
+
+import json
+import sys
+
+frames = []
+
+for function in sys.argv[1:]:
+    frame = {}
+    if ":" in function:
+        frame['package'], frame['function'] = function.split(":")
+    else:
+        frame['function'] = function
+
+    frames.append(frame)
+
+
+event = {
+    "exception": {
+        "type": "Error",
+        "stacktrace": {
+            "frames": frames
+        }
+    }
+}
+
+json.dump(event, sys.stdout)

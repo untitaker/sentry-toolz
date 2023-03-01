@@ -1,0 +1,23 @@
+#!/Users/untitaker/projects/clickhouse-histograms-experiments/.venv/bin/python
+from typing import Tuple
+import matplotlib.pyplot as plt
+
+
+Histogram = list[Tuple[int, int, int]]
+
+def plot_histogram(input: Histogram):
+    input_list = sorted(input)
+    histogram_centers = [(a + b) / 2 for a, b, _ in input_list]
+    histogram_heights = [v for _, _, v in input_list]
+    plt.bar(
+        x=histogram_centers,
+        width=[a - b for a, b, _ in input_list],
+        height=histogram_heights
+    )
+    plt.show()
+
+import sys
+import json
+
+for line in sys.stdin:
+    plot_histogram(eval(line))

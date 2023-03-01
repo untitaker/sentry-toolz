@@ -1,0 +1,4 @@
+#!/bin/sh
+fastmod ' ' $'\n' $1 --accept-all
+fastmod -m "'\n'" "' '" $1 --accept-all
+rustfmt $1

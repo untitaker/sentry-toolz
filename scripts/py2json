@@ -1,0 +1,5 @@
+#!/usr/bin/python3
+
+import json
+import sys
+print(json.dumps(eval(sys.stdin.read())))

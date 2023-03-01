@@ -1,0 +1,7 @@
+#!/bin/sh
+clause=''
+if [ -n "$1" ]; then
+    clause="where project_id = $1"
+fi
+
+docker exec -it sentry_postgres psql  -U postgres -d sentry -t -c "select concat('http://', public_key, '@localhost:8000/', project_id) from sentry_projectkey $clause" | tr -dc '[[:print:]]' | xargs echo

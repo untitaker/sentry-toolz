@@ -95,7 +95,6 @@ fn main() -> Result<(), Error> {
             let _guard = sentry::init(());
             for (i, line) in std::io::stdin().lines().enumerate() {
                 let line = line.context("failed to read line")?;
-                println!("{}", line);
                 let line = line.trim_end();
                 Metric::parse_statsd(&line).context(format!("failed to parse statsd metric at line {}", i))?.send();
             }

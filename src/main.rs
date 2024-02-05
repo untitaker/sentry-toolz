@@ -1,6 +1,6 @@
 use std::io::{self, BufRead, Cursor, Read, Write};
 
-use anyhow::Error;
+use anyhow::{Error, Context};
 use structopt::StructOpt;
 
 #[derive(StructOpt)]
@@ -18,6 +18,8 @@ enum Cli {
         #[structopt(short, long)]
         proto3: bool,
     },
+    /// Send metrics from stdin into sentry project, using SENTRY_DSN envvar
+    SendMetrics,
 }
 
 struct GarbageRemovingReader<R: Read>(R);
@@ -84,6 +86,18 @@ fn main() -> Result<(), Error> {
                 }
 
                 write.write(&[b'\n'])?;
+            }
+        }
+        Cli::SendMetrics => {
+            use sentry::metrics::Metric;
+
+            // uses envvarn
+            let _guard = sentry::init(());
+            for (i, line) in std::io::stdin().lines().enumerate() {
+                let line = line.context("failed to read line")?;
+                println!("{}", line);
+                let line = line.trim_end();
+                Metric::parse_statsd(&line).context(format!("failed to parse statsd metric at line {}", i))?.send();
             }
         }
     }

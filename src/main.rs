@@ -1,6 +1,6 @@
 use std::io::{self, BufRead, Cursor, Read, Write};
 
-use anyhow::{Error, Context};
+use anyhow::{Context, Error};
 use structopt::StructOpt;
 
 #[derive(StructOpt)]
@@ -96,7 +96,9 @@ fn main() -> Result<(), Error> {
             for (i, line) in std::io::stdin().lines().enumerate() {
                 let line = line.context("failed to read line")?;
                 let line = line.trim_end();
-                Metric::parse_statsd(&line).context(format!("failed to parse statsd metric at line {}", i))?.send();
+                Metric::parse_statsd(&line)
+                    .context(format!("failed to parse statsd metric at line {}", i))?
+                    .send();
             }
         }
     }
